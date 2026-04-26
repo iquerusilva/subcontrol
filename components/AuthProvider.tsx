@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsAuthenticated(true);
       } else {
         setIsAuthenticated(false);
-        if (pathname !== '/login') {
+        if (pathname !== '/login' && pathname !== '/signup') {
           router.push('/login');
         }
       }
@@ -44,12 +44,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (session) {
         setIsAuthenticated(true);
-        if (pathname === '/login') {
+        if (pathname === '/login' || pathname === '/signup') {
           router.push('/');
         }
       } else {
         setIsAuthenticated(false);
-        if (pathname !== '/login') {
+        if (pathname !== '/login' && pathname !== '/signup') {
           router.push('/login');
         }
       }
