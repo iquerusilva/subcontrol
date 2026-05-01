@@ -1,178 +1,189 @@
 'use client';
 
-import Layout from '@/components/Layout';
-import { api } from '@/services';
-import { Customer, Subscription } from '@/services/types';
-import { useEffect, useState } from 'react';
-import { Users, CreditCard, RefreshCcw, TrendingUp } from 'lucide-react';
 import { motion } from 'motion/react';
+import { ArrowUpRight } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import Navbar, { AzentosLogo } from '@/components/Navbar';
 
-export default function Dashboard() {
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({
-    customers: 0,
-    activeSubs: 0,
-    expiredSubs: 0,
-    mrr: 0,
-  });
-  const [expiringSubs, setExpiringSubs] = useState<Array<Subscription & { customerName: string; planName: string; price: number }>>([]);
-
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [customers, plans, subscriptions] = await Promise.all([
-          api.getCustomers(),
-          api.getPlans(),
-          api.getSubscriptions()
-        ]);
-
-        const activeSubs = subscriptions.filter(s => s.status === 'active');
-        const expiredSubs = subscriptions.filter(s => s.status === 'expired');
-
-        // Calculate MRR (Monthly Recurring Revenue)
-        const mrr = activeSubs.reduce((acc, sub) => {
-          const plan = plans.find(p => p.id === sub.plan_id);
-          return acc + (plan?.price || 0);
-        }, 0);
-
-        setStats({
-          customers: customers.length,
-          activeSubs: activeSubs.length,
-          expiredSubs: expiredSubs.length,
-          mrr
-        });
-
-        // Get expiring/expired soon
-        const todayStr = new Date().toISOString().split('T')[0];
-        const nextWeek = new Date();
-        nextWeek.setDate(nextWeek.getDate() + 7);
-        const nextWeekStr = nextWeek.toISOString().split('T')[0];
-
-        const alertSubs = subscriptions
-          .filter(s => (s.status === 'expired') || (s.status === 'active' && s.next_renewal <= nextWeekStr))
-          .map(s => {
-            const customer = customers.find(c => c.id === s.customer_id);
-            const plan = plans.find(p => p.id === s.plan_id);
-            return {
-              ...s,
-              customerName: customer?.name || 'Desconhecido',
-              planName: plan?.name || 'Desconhecido',
-              price: plan?.price || 0
-            };
-          })
-          .sort((a, b) => new Date(a.next_renewal).getTime() - new Date(b.next_renewal).getTime());
-
-        setExpiringSubs(alertSubs);
-      } catch (error) {
-        console.error('Failed to load dashboard data', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadData();
-  }, []);
-
-  const formatCurrency = (value: number) => 
-    new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
-
-  const formatDate = (dateStr: string) => 
-    new Intl.DateTimeFormat('pt-BR').format(new Date(dateStr));
-
-  if (loading) {
-    return (
-      <Layout>
-        <div className="flex h-64 items-center justify-center">
-          <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      </Layout>
-    );
-  }
-
+export default function Home() {
   return (
-    <Layout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Dashboard Overview</h1>
-          <p className="text-slate-400">Suas métricas principais hoje.</p>
+    <main className="relative min-h-screen bg-[#050505] overflow-hidden text-white font-sans selection:bg-white selection:text-[#C1121F]">
+      {/* Background gradient & atmosphere */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#FF5A00] via-[#C1121F] to-[#2a0404] opacity-90"></div>
+        {/* Overlay a placeholder fashion/abstract image to emulate the model silhouette */}
+        <div className="absolute top-[10%] lg:top-[5%] left-1/2 -translate-x-1/2 w-[800px] lg:w-[1200px] h-[800px] lg:h-[1200px] opacity-70 mix-blend-multiply flex items-center justify-center">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#FF5A00]/80 via-[#C1121F]/30 to-transparent blur-[100px] rounded-full"></div>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <KpiCard title="Total de Clientes" value={stats.customers} icon={Users} color="text-indigo-500" bg="bg-indigo-500/10" />
-          <KpiCard title="Assinaturas Ativas" value={stats.activeSubs} icon={RefreshCcw} color="text-emerald-500" bg="bg-emerald-500/10" />
-          <KpiCard title="Assinaturas Vencidas" value={stats.expiredSubs} icon={CreditCard} color="text-rose-500" bg="bg-rose-500/10" borderClass="border-l-4 border-l-rose-500" />
-          <KpiCard title="MRR (Receita Mensal)" value={formatCurrency(stats.mrr)} icon={TrendingUp} color="text-slate-500" bg="bg-slate-800" />
-        </div>
+      {/* Main Content Wrapper */}
+      <div className="relative z-10 min-h-screen flex flex-col justify-between max-w-screen-2xl mx-auto md:px-8 px-4 py-6">
+        
+        {/* Navigation */}
+        <Navbar />
 
-        <div className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden">
-          <div className="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-900">
-            <div>
-              <h2 className="text-lg font-semibold text-white">Próximos Vencimentos e Atrasos</h2>
-              <p className="text-sm text-slate-400">Assinaturas que exigem sua atenção (Vencem em até 7 dias).</p>
+        {/* Hero Body */}
+        <div className="flex flex-col lg:flex-row items-center justify-between mt-12 lg:mt-20 flex-grow relative">
+          
+          {/* Left Column (Desktop) / Top Section (Mobile) */}
+          <div className="w-full lg:w-1/3 flex flex-col gap-6 lg:gap-12 z-20">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+            >
+              <h1 className="text-3xl md:text-5xl lg:text-[56px] font-medium leading-[1.05] tracking-tight uppercase">
+                Desbloqueie o<br/>potencial do seu<br/>negócio com nossas<br/>soluções.
+              </h1>
+            </motion.div>
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
+              className="text-white/80 text-sm md:text-base max-w-sm lg:pr-8 leading-relaxed"
+            >
+              De estratégias inovadoras de <strong className="text-white font-semibold">marketing</strong> à excelência operacional.
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <Link
+                href="/sobre"
+                className="bg-[#6b080f] hover:bg-[#850b14] transition-colors text-white uppercase tracking-[0.1em] text-xs font-semibold py-4 md:py-5 px-8 md:px-10 rounded-full w-fit mt-4 inline-block text-center"
+              >
+                Saiba Mais
+              </Link>
+            </motion.div>
+
+            {/* Left Bento Cards Group */}
+            <div className="flex flex-col sm:flex-row lg:flex-col gap-4 mt-12 lg:mt-24 w-full max-w-xl">
+              
+              {/* White Card */}
+              <motion.div 
+                whileHover={{ y: -5 }}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="bg-white rounded-3xl p-6 lg:p-8 flex flex-col justify-between aspect-[4/3] sm:aspect-square lg:aspect-auto lg:h-[220px] text-black w-full"
+              >
+                <div className="flex justify-between items-start mb-10">
+                  <AzentosLogo className="w-8 h-8 text-black" />
+                </div>
+                <div>
+                  <h3 className="text-5xl md:text-6xl font-medium tracking-tighter">472+</h3>
+                  <p className="text-xs md:text-sm font-medium mt-2 tracking-wide text-black/70">Soluções completas.</p>
+                </div>
+              </motion.div>
+
             </div>
           </div>
-          
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-slate-950/50 text-slate-500">
-                <tr>
-                  <th className="px-5 py-3 font-medium uppercase text-[10px] tracking-wider">Cliente</th>
-                  <th className="px-5 py-3 font-medium uppercase text-[10px] tracking-wider">Plano / Valor</th>
-                  <th className="px-5 py-3 font-medium uppercase text-[10px] tracking-wider">Vencimento</th>
-                  <th className="px-5 py-3 font-medium uppercase text-[10px] tracking-wider text-right">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800">
-                {expiringSubs.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
-                      Nenhuma assinatura com vencimento próximo.
-                    </td>
-                  </tr>
-                ) : (
-                  expiringSubs.map((sub) => (
-                    <tr key={sub.id} className="hover:bg-slate-800/50 transition-colors">
-                      <td className="px-5 py-4 font-medium text-white">{sub.customerName}</td>
-                      <td className="px-5 py-4 text-slate-400">
-                        {sub.planName} <span className="text-slate-500">({formatCurrency(sub.price)})</span>
-                      </td>
-                      <td className="px-5 py-4 text-slate-400">{formatDate(sub.next_renewal)}</td>
-                      <td className="px-5 py-4 text-right">
-                        <span className={`inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold ${
-                          sub.status === 'expired' 
-                            ? 'bg-rose-500/10 text-rose-500' 
-                            : 'bg-amber-500/10 text-amber-500'
-                        }`}>
-                          {sub.status === 'expired' ? 'VENCIDA' : 'VENCE EM BREVE'}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+
+          {/* Right Column / Bento Cards */}
+          <div className="w-full lg:w-1/3 flex flex-col items-end gap-6 lg:gap-12 z-20 mt-16 lg:mt-0">
+             
+             {/* Large Right Side Headline */}
+             <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+              className="text-right w-full flex flex-col items-end"
+             >
+              <h2 className="text-5xl sm:text-7xl lg:text-[80px] xl:text-[100px] leading-[0.85] font-medium tracking-tighter uppercase text-right">
+                Estúdio<br/>
+                <span className="opacity-60 text-transparent bg-clip-text bg-gradient-to-r from-white to-white/40">Criativo</span><br/>
+                Digital
+              </h2>
+             </motion.div>
+             
+             <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
+              className="text-white/80 text-sm md:text-base max-w-xs text-right mt-6 lg:mt-8 leading-relaxed"
+            >
+              De estratégias inovadoras de <strong className="text-white">marketing</strong> à excelência operacional, oferecemos orientação especializada para o seu negócio crescer e prosperar.
+            </motion.p>
+
+            {/* Right Cards Group */}
+            <div className="flex flex-col sm:flex-row lg:flex-row justify-end items-stretch gap-4 mt-8 lg:mt-12 w-full">
+              
+               {/* Orange Gradient Card */}
+               <motion.div 
+                whileHover={{ y: -5 }}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                className="bg-gradient-to-br from-[#FF5A00] to-[#E04000] rounded-3xl p-6 lg:p-8 flex flex-col justify-between aspect-[4/3] sm:aspect-square lg:aspect-auto lg:h-[220px] lg:w-[220px] w-full flex-shrink-0 relative overflow-hidden"
+              >
+                <div className="absolute -top-4 -right-4 blur-xl opacity-50 bg-white w-20 h-20 rounded-full"></div>
+                <div className="flex justify-between items-start mb-10 z-10">
+                  <span className="text-white/90 text-sm font-medium leading-tight w-24">Inicie o crescimento da sua agência</span>
+                  <div className="w-8 h-8 rounded-full border border-white/30 flex items-center justify-center">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+                      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/>
+                    </svg>
+                  </div>
+                </div>
+                <div className="z-10">
+                  <h3 className="text-5xl md:text-6xl font-medium tracking-tighter text-white">597+</h3>
+                  <p className="text-xs md:text-sm font-medium mt-2 tracking-wide text-white/80">Empresas Prósperas</p>
+                </div>
+              </motion.div>
+
+              {/* Dark Glass Card */}
+              <motion.div 
+                whileHover={{ y: -5 }}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+                className="bg-black/20 backdrop-blur-md border border-white/10 rounded-3xl p-6 flex flex-col justify-between aspect-[4/3] sm:aspect-square lg:aspect-auto lg:h-[220px] flex-grow sm:flex-grow lg:w-auto w-full relative"
+              >
+                <div className="flex justify-between items-start mb-6">
+                  <span className="text-xl md:text-2xl font-medium leading-[1.1] max-w-[120px]">Seu Parceiro de Negócios</span>
+                  <Link href="/contato" className="w-10 h-10 rounded-full bg-red-900/40 border border-red-500/30 flex items-center justify-center shrink-0 hover:bg-red-800/60 transition-colors">
+                    <ArrowUpRight className="w-5 h-5 text-[#FF5A00]" />
+                  </Link>
+                </div>
+                
+                <div className="flex flex-col gap-4 mt-auto">
+                   <p className="text-[10px] text-white/60 leading-relaxed uppercase tracking-wider">
+                     / De estratégias de marketing<br/>inovadoras à excelência<br/>operacional /
+                   </p>
+                   <div className="flex items-center gap-2 border border-white/20 rounded-full p-1 pl-3 w-fit bg-black/30">
+                     <div className="flex -space-x-2">
+                       <div className="w-6 h-6 rounded-full bg-gray-600 border border-[#111] overflow-hidden relative">
+                         <Image src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=50&h=50&fit=crop" width={24} height={24} alt="User" referrerPolicy="no-referrer" />
+                       </div>
+                       <div className="w-6 h-6 rounded-full bg-gray-500 border border-[#111] overflow-hidden relative">
+                         <Image src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=50&h=50&fit=crop" width={24} height={24} alt="User" referrerPolicy="no-referrer" />
+                       </div>
+                     </div>
+                     <span className="text-[10px] font-semibold tracking-wider px-2 border-l border-white/20 h-4 flex items-center">1000K+</span>
+                   </div>
+                </div>
+              </motion.div>
+
+            </div>
           </div>
         </div>
-      </div>
-    </Layout>
-  );
-}
 
-function KpiCard({ title, value, icon: Icon, color, bg, borderClass }: { title: string, value: string | number, icon: any, color: string, bg: string, borderClass?: string }) {
-  return (
-    <motion.div 
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={`bg-slate-900 rounded-2xl border border-slate-800 p-5 overflow-hidden ${borderClass || ''}`}
-    >
-      <div className="flex items-center gap-4">
-        <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${bg} ${color}`}>
-          <Icon className="w-6 h-6" />
+        {/* Giant Bottom Text */}
+        <div className="w-full mt-24 lg:mt-32 overflow-hidden flex justify-center -mb-8 lg:-mb-16 pointer-events-none select-none">
+          <motion.h1 
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 0.15, y: 0 }}
+            transition={{ duration: 1, ease: "easeOut", delay: 0.5 }}
+            className="text-[16vw] font-bold leading-[0.75] tracking-tighter uppercase text-white mix-blend-overlay max-h-[14vw]"
+          >
+            BRANDING
+          </motion.h1>
         </div>
-        <div>
-          <p className="text-sm font-medium text-slate-400 mb-1">{title}</p>
-          <p className="text-3xl font-bold text-white tracking-tight">{value}</p>
-        </div>
+
       </div>
-    </motion.div>
+    </main>
   );
 }

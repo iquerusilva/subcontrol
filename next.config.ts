@@ -17,8 +17,15 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**', // This allows any path under the hostname
       },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**', // This allows any path under the hostname
+      },
     ],
   },
+
   output: 'standalone',
   transpilePackages: ['motion'],
   webpack: (config, {dev}) => {
