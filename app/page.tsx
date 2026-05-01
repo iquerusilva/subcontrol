@@ -12,9 +12,16 @@ export default function Home() {
       {/* Background gradient & atmosphere */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-br from-[#FF5A00] via-[#C1121F] to-[#2a0404] opacity-90"></div>
-        {/* Overlay a placeholder fashion/abstract image to emulate the model silhouette */}
-        <div className="absolute top-[10%] lg:top-[5%] left-1/2 -translate-x-1/2 w-[800px] lg:w-[1200px] h-[800px] lg:h-[1200px] opacity-70 mix-blend-multiply flex items-center justify-center">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#FF5A00]/80 via-[#C1121F]/30 to-transparent blur-[100px] rounded-full"></div>
+        
+        {/* Model Image from User */}
+        <div className="absolute top-[20%] lg:top-[10%] left-1/2 -translate-x-1/2 w-[600px] lg:w-[850px] h-[70vh] lg:h-[80vh] flex items-center justify-center mix-blend-luminosity opacity-90">
+            {/* O modelo. A classe -scale-x-100 inverte a imagem horizontalmente para ele olhar para a direita */}
+            {/* mix-blend-luminosity ou mix-blend-screen ajudam a mesclar o fundo escuro da foto com o gradiente */}
+            <img 
+              src="/modelo.png" 
+              alt="Modelo" 
+              className="object-contain object-center w-full h-full -scale-x-100 drop-shadow-2xl" 
+            />
         </div>
       </div>
 
