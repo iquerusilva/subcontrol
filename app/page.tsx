@@ -14,7 +14,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-br from-[#FF5A00] via-[#C1121F] to-[#2a0404] opacity-90"></div>
         
         {/* Model Image from User */}
-        <div className="absolute top-[28%] lg:top-[10%] left-1/2 -translate-x-1/2 w-[100vw] sm:w-[600px] lg:w-[850px] h-[45vh] lg:h-[80vh] flex items-start lg:items-center justify-center mix-blend-luminosity opacity-90">
+        <div className="absolute top-[15%] lg:top-[10%] left-1/2 -translate-x-1/2 w-[100vw] sm:w-[600px] lg:w-[850px] h-[55vh] lg:h-[80vh] flex items-start lg:items-center justify-center mix-blend-luminosity opacity-90">
             {/* O modelo. A classe -scale-x-100 inverte a imagem horizontalmente para ele olhar para a direita */}
             {/* mix-blend-luminosity ou mix-blend-screen ajudam a mesclar o fundo escuro da foto com o gradiente */}
             <img 
