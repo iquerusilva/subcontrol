@@ -67,7 +67,7 @@ export default function Home() {
             </motion.div>
 
             {/* Left Bento Cards Group */}
-            <div className="flex flex-col sm:flex-row lg:flex-col gap-4 mt-12 lg:mt-24 w-full max-w-xl">
+            <div className="flex flex-col sm:flex-row lg:flex-col gap-4 mt-[320px] sm:mt-[380px] lg:mt-24 w-full max-w-xl">
               
               {/* White Card */}
               <motion.div 
